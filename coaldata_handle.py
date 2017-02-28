@@ -2,14 +2,12 @@ import os,pandas,matplotlib
 import matplotlib.pyplot as plt
 import numpy
 
-curdir=os.path.dirname(os.path.realpath(__file__))
-#print(curdir)
-
-test_name=input('input the testname you are going on :') or 'testdata'
-test_number=input('input the times now:') or '1'
-current_file=test_name+test_number+'.csv'
-full_current_file=os.path.join(curdir,current_file)
-#print(full_current_f ile)
+def get_full_path(test_name='testdata',test_number='1'):    
+    curdir=os.path.dirname(os.path.realpath(__file__))
+    current_file=test_name+test_number+'.csv'
+    full_current_file=os.path.join(curdir,current_file)
+    return full_current_file
+    #print(full_current_f ile)
 
 data=pandas.read_csv(full_current_file,index_col=0,header=None)#关键词变量：sep(str or default ','),index_col代表第几列作为行名，设置列名就同时设置header=None
 
