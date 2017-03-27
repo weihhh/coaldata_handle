@@ -1,0 +1,1 @@
+1.将coal——gui文件转换为exe，出现了ImportError: No module named FileDialog 问题，python pyinstaller.py -W filename.py 这样打包，然后将生成的exe拖入cmd中运行，就能看见错误所在。最后在文件顶部增加import tkinter.filedialog  和 import tkinter解决问题，大小写问题，估计是版本问题

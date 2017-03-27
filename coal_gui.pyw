@@ -10,36 +10,33 @@ import os,pandas,matplotlib
 import matplotlib.pyplot as plt
 import numpy
 
-def get_full_path(test_name='testdata',test_number='1'):    
+def get_full_path(test_name='port',test_number='1'):    
     curdir=os.path.dirname(os.path.realpath(__file__))
     current_file=test_name+test_number+'.csv'
     full_current_file=os.path.join(curdir,current_file)
     return full_current_file
 
 
-def get_row(times,updown):
-    if updown=='u':
-        times=2*times-2
-    else:
-        times=2*times-1
-    row=self.data.iloc[times].values
-    #print(row)
-    datalen=len(row)
-    #print(datalen)
-    row=self.data.iloc[times,:datalen-1].values#iloc根据位置选取，【行，列】
-    #print(type(row))
-    #print(row)
-    return row    
+  
+
+def pre_proceed(data):
+    pjz=numpy.mean(data)
+    bzc=numpy.std(data)
+    data1=numpy.where(data<pjz+2*bzc,data,pjz)
+    data2=numpy.where(data1>pjz-2*bzc,data1,pjz)#两倍方差效果很好，三倍会有数据出错    
+    return data2
+
     
 class Application(Frame):
     def __init__(self,master=None):
         Frame.__init__(self,master)
         self.pack()
-        self.testname='testdata'
-        self.testnumber='1'
+        self.testname='port'
+        self.testnumber='3'
         self.filename=StringVar()
         self.up_value=IntVar()
         self.down_value=IntVar()
+        self.corr_multi=IntVar()
         self.createWidgets()
         
     def createWidgets(self):        
@@ -79,10 +76,28 @@ class Application(Frame):
         self.confirmButton2 = Button(self, text='ok', command=self.make_pic)
         self.confirmButton2.grid(row=5,column=2)#确认输入按钮
         
-        self.backButton = Button(self, text='back', command=self.setvar)
-        self.backButton.grid(row=6,column=0)#确认输入按钮
-        self.nextButton = Button(self, text='next', command=self.setvar)
-        self.nextButton.grid(row=6,column=1)#确认输入按钮
+        self.noteLabel6 = Label(self, text='5.input the row you want to do corr!')
+        self.noteLabel6.grid(row=6,sticky=W)#提示标签
+        self.start_rowInput1 = Entry(self)
+        self.start_rowInput1.grid(row=7)#输入框
+        self.end_rowInput1 = Entry(self)
+        self.end_rowInput1.grid(row=7,column=1)#输入框
+        self.corr_multi_check=Checkbutton(self,text='multi ',variable=self.corr_multi)
+        self.corr_multi_check.grid(row=7,column=2)
+        self.confirmButton3 = Button(self, text='corr', command=self.my_corr)
+        self.confirmButton3.grid(row=7,column=3)#确认输入按钮
+        
+        
+        
+        
+        
+        self.noteLabel7 = Label(self, text='welcome!')
+        self.noteLabel7.grid(row=8,sticky=W)#提示标签
+        
+        # self.backButton = Button(self, text='back', command=self.setvar)
+        # self.backButton.grid(row=6,column=0)#确认输入按钮
+        # self.nextButton = Button(self, text='next', command=self.setvar)
+        # self.nextButton.grid(row=6,column=1)#确认输入按钮
         
         
     def set_filename(self):
@@ -92,7 +107,79 @@ class Application(Frame):
         self.filename.set(full_current_file)
         self.data=pandas.read_csv(full_current_file,index_col=0,header=None)#关键词变量：sep(str or default ','),index_col代表第几列作为行名，设置列名就同时设置header=None
         
+    def my_corr(self):
+        #做互相关，并显示原始数据，处理后数据，相关值获取
+        
+        start_times=int(self.start_rowInput1.get() or '1')
+        end_times=int(self.end_rowInput1.get() or '2')
+        if self.corr_multi.get()==1 :
+            # print(self.corr_multi)
+            with open(r'D:\project\pypro\coaldata_handle\corr_all.csv','a',encoding='utf-8') as f:
+                f.write(self.filename.get()+',')
+                for i in range(start_times,end_times+1):
+                    u_data_origin=self.get_row(i,'u')
+                    d_data_origin=self.get_row(i,'d')
+
+                    u_data_pre=pre_proceed(u_data_origin)
+                    d_data_pre=pre_proceed(d_data_origin)
+                    
+                    u_data_corr=u_data_origin-numpy.mean(u_data_pre)
+                    d_data_corr=d_data_origin-numpy.mean(d_data_pre)
+                    
+                    c=numpy.correlate(u_data_corr,d_data_corr,'same')#算出的值为总长除以二加上延迟
+                    max_index = numpy.argmax(c)
+                    print(i,':',max_index-512)
+                    f.write(str(max_index-512)+',')
+                    if i==end_times:
+                        f.write('\n')
+                
+        else:            
+            u_data_origin=self.get_row(start_times,'u')
+            d_data_origin=self.get_row(start_times,'d')
+
+            u_data_pre=pre_proceed(u_data_origin)
+            d_data_pre=pre_proceed(d_data_origin)
+            
+            u_data_origin_s=pandas.Series(u_data_origin)
+            d_data_origin_s=pandas.Series(d_data_origin)            
+            u_data_pre_s=pandas.Series(u_data_pre)#series才有plot函数，将get_row取得的array转换为series
+            d_data_pre_s=pandas.Series(d_data_pre)
+            
+            plt.figure(1)
+            plt.subplot(221)#行数，列数，当前第几幅图
+            u_data_origin_s.plot()
+            plt.subplot(223)
+            d_data_origin_s.plot()
+            plt.subplot(222)
+            u_data_pre_s.plot()
+            plt.subplot(224)
+            d_data_pre_s.plot()
+            
+            
+            
+            # print(u_data,d_data)
+            u_data_corr=u_data_origin-numpy.mean(u_data_pre)
+            d_data_corr=d_data_origin-numpy.mean(d_data_pre)
+            # print(u_data,d_data)
+
+            c=numpy.correlate(u_data_corr,d_data_corr,'same')#算出的值为总长除以二加上延迟
+            max_index = numpy.argmax(c)
+            print('corr:',max_index-512)
+            corr_s=pandas.Series(c)
+            plt.figure(2)
+            plt.subplot(211)
+            u_data_origin_s.plot()
+            plt.hold
+            d_data_origin_s.plot()
+            plt.subplot(212)
+            corr_s.plot()            
+            plt.show()
+
+        
+    
+    
     def make_pic(self):
+        #从这开始做根据设置的范围取出数据
         start_times=int(self.start_rowInput.get() or '1')
         if self.up_value.get()==1 and self.down_value.get()!=1 :
             
@@ -113,10 +200,8 @@ class Application(Frame):
                 for i in range(start_times+1,end_times+1):
                     self.current_down_row=self.get_row(i,'d')
                     plot_data_array=numpy.concatenate((plot_data_array,self.current_down_row))#注意这里需要结合的两个array需要在一个括号里面
-            
-            
-            
-        
+        #完成取出数据plot_data_array    
+                               
         plot_data=pandas.Series(plot_data_array)
         plot_data.plot()
         plt.show()
@@ -126,13 +211,13 @@ class Application(Frame):
             times=2*times-2
         else:
             times=2*times-1
-        row=self.data.iloc[times].values.copy()
+        row=self.data.iloc[times].values
         #print(row)
         datalen=len(row)
-        #print(datalen)
-        row=self.data.iloc[times,:datalen-1].values.copy()#iloc根据位置选取，【行，列】
+        print(datalen)
+        row=self.data.iloc[times,0:datalen-1].values.copy()#iloc根据位置选取，【行，列从0开始，不取到：后那个数字】
         #print(type(row))
-        #print(row)
+        print(row)
         return row    
     
     def setvar(self):
