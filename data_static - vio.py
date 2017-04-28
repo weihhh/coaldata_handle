@@ -16,9 +16,8 @@ if not os.path.exists(newpath):
 filenames=os.listdir(findpath)
 for filename in filenames:
     pjz_of_row_u=[]
-    pjz_of_row_d=[]   
+    pjz_of_row_d=[]
     if os.path.splitext(filename)[1]=='.csv':
-        print(filename)
         with open(os.path.join(findpath,filename),'r') as f:
             csv_file=csv.reader(f)
             data_rowlist=[data for data in csv_file]
@@ -26,29 +25,21 @@ for filename in filenames:
                 nparray=np.array(datas[1:1025]).astype(np.float)
                 pjz=np.mean(nparray)
                 bzc=np.std(nparray)
-                #purelist=[i for i in datas[1:1025] if (pjz-2*bzc)<int(i)<(pjz+2*bzc)]#删除尖峰，生成经过处理的列表
-                #nparray=np.array(purelist).astype(np.float)                
+                purelist=[i for i in datas[1:1025] if (pjz-2*bzc)<int(i)<(pjz+2*bzc)]
+                nparray=np.array(purelist).astype(np.float)                
                 if i%2==0:
-                    pjz_of_row_u.append(str(pjz))
+                    pjz_of_row_u.append(str(np.mean(nparray)))
                 if i%2!=0:
-                    pjz_of_row_d.append(str(pjz))
+                    pjz_of_row_d.append(str(np.mean(nparray)))
                 
                 
         with open(os.path.join(newpath,'statics.txt'),'a') as f1:        
             nparray=np.array(pjz_of_row_u).astype(np.float)
             pjz=np.mean(nparray)
-            bzc=np.std(nparray)
-            purelist=[str(i) for i in nparray if (pjz-0.3*bzc)<int(i)<(pjz+0.3*bzc)]
-            nparray=np.array(purelist).astype(np.float)
-            pjz=np.mean(nparray)
-            f1.write(filename+'\n'+' u: '+','.join(purelist)+'\n')
+            f1.write(filename+'\n'+' u: '+','.join(pjz_of_row_u)+'\n')
             f1.write('total:'+str(pjz)+'\n'+'\n')            
             nparray=np.array(pjz_of_row_d).astype(np.float)
             pjz=np.mean(nparray)
-            bzc=np.std(nparray)
-            purelist=[str(i) for i in nparray if (pjz-0.3*bzc)<int(i)<(pjz+0.3*bzc)]
-            nparray=np.array(purelist).astype(np.float)
-            pjz=np.mean(nparray)
-            f1.write(' d: '+','.join(purelist)+'\n')
+            f1.write(' d: '+','.join(pjz_of_row_d)+'\n')
             f1.write('total:'+str(pjz)+'\n'+'\n')
     

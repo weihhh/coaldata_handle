@@ -1,24 +1,17 @@
 import os,re
-
-def get_full_path(test_name='port',test_number='1'):    
-    curdir=os.path.dirname(os.path.realpath(__file__))
-    current_file=test_name+test_number+'.csv'
-    full_current_file=os.path.join(curdir,current_file)
-    return full_current_file
-    
 def file_to_iter(filename):
     with open(filename,'r')as f:        
         data_pat=re.compile(r'\[(.*?)\]')
         data_iter=data_pat.finditer(f.read())
         return data_iter
 
-findpath=r'C:\Users\weihao\Desktop\第三次煤粉数据处理\旧管测试\0.5无屏蔽'
+findpath=r'C:\Users\weihao\Desktop\4.24test'
 newpath=os.path.join(findpath,'python_data')
 if not os.path.exists(newpath):
     os.mkdir(newpath)
 filenames=os.listdir(findpath)
 for filename in filenames:
-    if os.path.splitext(filename)[1]=='.txt':
+    if os.path.splitext(filename)[1]=='.csv':
         data_iter=file_to_iter(os.path.join(findpath,filename))        
         csv_filename=os.path.join(newpath,os.path.splitext(filename)[0]+'.csv')
         with open(csv_filename,'w') as f1:
