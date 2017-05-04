@@ -13,11 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-def get_full_path(test_name='port',test_number='1'):    
-    curdir=os.path.dirname(os.path.realpath(__file__))
-    current_file=test_name+test_number+'.csv'
-    full_current_file=os.path.join(curdir,current_file)
-    return full_current_file
+
 
 
   
@@ -41,29 +37,25 @@ class Application(Frame):
     def __init__(self,master=None):
         Frame.__init__(self,master)
         self.pack()
-        self.testname='NN4'
-        self.testnumber='2'
+        self.openfilename=self.get_file()
         self.filename=StringVar()
         self.up_value=IntVar()
         self.down_value=IntVar()
         self.corr_multi=IntVar()
         self.createWidgets()
-        
+    
+    def get_file(self):
+        self.openfilename=tkinter.filedialog.askopenfilename(defaultextension=".csv",filetypes = [("csv文件",".csv")])#filetypes将对文件进行筛选显示，askopenfilename返回的是字符串
+            
+    
     def createWidgets(self):        
         
         
-        self.noteLabel1 = Label(self, text='1.input your testname here !')
+        self.noteLabel1 = Label(self, text='1.select the filename !')
         self.noteLabel1.grid(row=0,sticky=W)#提示测试名称标签
-        self.testnameInput = Entry(self)
-        self.testnameInput.grid(row=0,column=1)#测试名称输入框
         
-        self.noteLabel2 = Label(self, text='2.input your testnumber here !')
-        self.noteLabel2.grid(row=1,sticky=W)#提示测试编号标签
-        self.testnumberInput = Entry(self)
-        self.testnumberInput.grid(row=1,column=1)#测试编号输入框
-        
-        self.confirmButton1 = Button(self, text='ok', command=self.set_filename)
-        self.confirmButton1.grid(row=1,column=2)#确认测试文件名按钮
+        self.confirmButton1 = Button(self, text='open', command=self.get_file)
+        self.confirmButton1.grid(row=0,column=1)#确认测试文件名按钮
         
         
         self.noteLabel3=Label(self)
@@ -108,11 +100,10 @@ class Application(Frame):
         # self.backButton.grid(row=6,column=0)#确认输入按钮
         # self.nextButton = Button(self, text='next', command=self.setvar)
         # self.nextButton.grid(row=6,column=1)#确认输入按钮
-        
+    
+    
         
     def set_filename(self):
-        self.testname = self.testnameInput.get() or self.testname
-        self.testnumber = self.testnumberInput.get() or self.testnumber
         full_current_file=get_full_path(self.testname,self.testnumber)
         self.filename.set(full_current_file)
         self.data=pd.read_csv(full_current_file,index_col=0,header=None)#关键词变量：sep(str or default ','),index_col代表第几列作为行名，设置列名就同时设置header=None
