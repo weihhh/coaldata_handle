@@ -49,6 +49,9 @@ class Application(Frame):
         
         self.confirmButton1 = Button(self, text='打开', command=self.get_file)
         self.confirmButton1.grid(row=0,column=1)#确认测试文件名按钮
+
+        self.confirmButtonx = Button(self, text='预处理', command=self.pre_file)
+        self.confirmButtonx.grid(row=0,column=2)#删除数据中的问号,先点击打开文件，选择文件后，若第一次打开这个文件，则点击预处理
         
         
         self.noteLabel3=Label(self)
@@ -90,9 +93,17 @@ class Application(Frame):
         self.filename_lable.set(self.filename)
         self.ori_data=pd.read_csv(self.filename,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
         del_long=lambda x: x%10000#若碰到四位四位相连的数据，保留后四位
-        self.pro_data=self.ori_data.fillna(method='ffill',axis=1).ix[:,0:5].applymap(del_long)#这里因为将1，2作为index，所以默认就是显示的，ix[:,y:4]中的y不管取0，1都是一样的，共0-5，0-1索引，2-5数据
+        self.pro_data=self.ori_data.fillna(method='ffill',axis=1).ix[:,0:1025].applymap(del_long)#这里因为将1，2作为index，所以默认就是显示的，ix[:,y:4]中的y不管取0，1都是一样的，共0-5，0-1索引，2-5数据
         print(self.pro_data)
 
+    def pre_file(self):
+        file=tkinter.filedialog.askopenfilename(defaultextension=".csv",filetypes = [("csv文件",".csv")])
+        with open(file,'rt',errors='ignore') as f:
+            data=f.read()
+        with open(file,'wt') as f:
+            pre_data=re.sub(r'[^,a-z0-9\n]','',data)#.replace方法不修改原字符串
+            
+            f.write(pre_data)
     def make_pic(self):
         #从这开始做根据设置的范围取出数据
         start_times=int(self.start_rowInput.get() or '1')
@@ -101,13 +112,13 @@ class Application(Frame):
         if self.up_value.get()==1 and self.down_value.get()!=1 :        
             plot_data_series=start_series.append([self.get_row(i,'u') for i in range(start_times,end_times+1)],ignore_index=True)
         if self.down_value.get()==1:
-            plot_data_series=start_series.append([self.get_row(i,'u') for i in range(start_times,end_times+1)],ignore_index=True)
+            plot_data_series=start_series.append([self.get_row(i,'d') for i in range(start_times,end_times+1)],ignore_index=True)
 
         plot_data_series.plot()
         plt.show()
     
     def get_row(self,times,updown):
-        row=self.pro_data.ix[times,:5].ix[updown]#return series,非副本，只是视图
+        row=self.pro_data.ix[times,:1025].ix[updown]#return series,非副本，只是视图
         #self.datalen=len(row)
         return row   
 
