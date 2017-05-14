@@ -102,8 +102,8 @@ class Application(Frame):
             data=f.read()
         with open(file,'wt') as f:
             pre_data=re.sub(r'[^,a-z0-9\n]','',data)#.replace方法不修改原字符串
-            
             f.write(pre_data)
+            
     def make_pic(self):
         #从这开始做根据设置的范围取出数据
         start_times=int(self.start_rowInput.get() or '1')
