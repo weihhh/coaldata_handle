@@ -13,6 +13,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+data_number=1024
 def pre_proceed(data):
     pjz=np.mean(data)
     bzc=np.std(data)
@@ -53,6 +54,13 @@ class Application(Frame):
         self.confirmButtonx = Button(self, text='预处理', command=self.pre_file)
         self.confirmButtonx.grid(row=0,column=2)#删除数据中的问号,先点击打开文件，选择文件后，若第一次打开这个文件，则点击预处理
         
+        self.noteLabelAD = Label(self, text='输入空管AD值')
+        self.noteLabelAD.grid(row=1,sticky=W)
+        self.empty_ad_imput = Entry(self)#输入空管ad值
+        self.empty_ad_imput.grid(row=1,column=1)
+        self.sumbutton = Button(self, text='累计流量', command=self.adsum)
+        self.sumbutton.grid(row=1,column=3)
+
         
         self.noteLabel3=Label(self)
         self.noteLabel3['textvariable']=self.filename_lable        
@@ -90,11 +98,11 @@ class Application(Frame):
             
     def get_file(self):#打开文件获取初始数据
         self.filename=tkinter.filedialog.askopenfilename(defaultextension=".csv",filetypes = [("csv文件",".csv")])#filetypes将对文件进行筛选显示，askopenfilename返回的是字符串
-        self.filename_lable.set(self.filename)
+        self.filename_lable.set(self.filename)#显示的标签需要set方法来设置
         self.ori_data=pd.read_csv(self.filename,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
         del_long=lambda x: x%10000#若碰到四位四位相连的数据，保留后四位
-        self.pro_data=self.ori_data.fillna(method='ffill',axis=1).ix[:,0:1025].applymap(del_long)#这里因为将1，2作为index，所以默认就是显示的，ix[:,y:4]中的y不管取0，1都是一样的，共0-5，0-1索引，2-5数据
-        print(self.pro_data)
+        self.pro_data=self.ori_data.fillna(method='ffill',axis=1).ix[:,0:data_number+1].applymap(del_long)#这里因为将1，2作为index，所以默认就是显示的，ix[:,y:4]中的y不管取0，1都是一样的，共0-5，0-1索引，2-5数据
+        print(self.pro_data,'\n',self.pro_data.shape[0])
 
     def pre_file(self):
         file=tkinter.filedialog.askopenfilename(defaultextension=".csv",filetypes = [("csv文件",".csv")])
@@ -118,11 +126,25 @@ class Application(Frame):
         plt.show()
     
     def get_row(self,times,updown):
-        row=self.pro_data.ix[times,:1025].ix[updown]#return series,非副本，只是视图
+        row=self.pro_data.ix[times,:data_number+1].ix[updown]#return series,非副本，只是视图
         #self.datalen=len(row)
         return row   
 
-                
+    def adsum(self):
+        self.empty_ad=int(self.empty_ad_imput.get() or '2000')/1000
+        self.data_for_ad=self.pro_data.copy()/1000
+        self.data_for_ad[self.data_for_ad<self.empty_ad]=self.empty_ad
+        #print(self.data_for_ad)
+        self.data_for_ad=self.data_for_ad-self.empty_ad
+        print(self.data_for_ad)
+        ad_sum=0
+        #print(type(self.data_for_ad.shape[0]))
+        for i in range(1,self.data_for_ad.shape[0]//2+1):#//强制整形，/的话会转换位float
+            ad_sum+=self.data_for_ad.ix[i,:data_number+1].ix['u'].sum()
+            #ad_sum+=self.data_for_ad.ix[i,:1025].ix['d'].sum()
+        print('空管值：',self.empty_ad,'ad总和',ad_sum)
+
+
     def my_corr(self):
         #做互相关，并显示原始数据，处理后数据，相关值获取
         
