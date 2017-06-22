@@ -72,11 +72,13 @@ class Application(Frame):
         self.confirmButtonx = Button(self, text='预处理', command=self.pre_file)
         self.confirmButtonx.grid(row=0,column=2)#删除数据中的问号,先点击打开文件，选择文件后，若第一次打开这个文件，则点击预处理
         
-        self.noteLabelAD = Label(self, text='输入空管AD值')
+        self.noteLabelAD = Label(self, text='2.输入累计文件范围')
         self.noteLabelAD.grid(row=1,sticky=W)
-        self.empty_ad_imput = Entry(self)#输入空管ad值
-        self.empty_ad_imput.grid(row=1,column=1)
-        self.sumbutton = Button(self, text='累计流量', command=self.adsum)
+        self.folw_start_input = Entry(self)#输入开始范围
+        self.folw_start_input.grid(row=1,column=1)
+        self.folw_end_input = Entry(self)#输入结束范围
+        self.folw_end_input.grid(row=1,column=2)
+        self.sumbutton = Button(self, text='统计流量', command=self.addflow)
         self.sumbutton.grid(row=1,column=3)
 
         
@@ -169,8 +171,9 @@ class Application(Frame):
         #plt.plot(plot_data_series,'ko')
         plt.show()
     def get_row(self,times,updown):
-        row=self.pro_data.ix[times,:data_number+1].ix[updown]#return series,非副本，只是视图
+        row=self.pro_data.ix[times,:data_number+1].ix[updown]#return series,非副本，只是视图,从times从1开始，因为pro_data中行0为列名
         #self.datalen=len(row)
+        print(row)
         return row   
 
     def adsum(self):
@@ -187,7 +190,69 @@ class Application(Frame):
             #ad_sum+=self.data_for_ad.ix[i,:1025].ix['d'].sum()
         print('空管值：',self.empty_ad,'ad总和',ad_sum)
 
+    def addflow(self):#统计各个文件流量，写入数据，画出曲线，拟合
+        curdir=os.path.dirname(self.filename)
+        filenumber_start=int(self.folw_start_input.get() or '1')
+        filenumber_end=int(self.folw_end_input.get() or '2')
+        x=[]
+        for i in range(filenumber_start,filenumber_end+1):
+            # self.filename=os.path.normpath(os.path.join(curdir,'test'+str(i)+'.csv'))#os.path.normcase(path)转换path的大小写和斜杠os.path.normpath(path)规范path字符串形式
+            # self.filename_lable.set(self.filename)
+            if i not in [16,18,21]:#去除坏点
+                flow_filename=os.path.normpath(os.path.join(curdir,'test'+str(i)+'.csv'))
+                flow_ori_data=pd.read_csv(flow_filename,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
+                flow_pro_data=flow_ori_data.fillna(method='ffill',axis=1).ix[:,0:data_number+1]
 
+                sum_flow=self.my_corr_file(flow_pro_data,1,flow_pro_data.shape[0]//2)
+                x.append(sum_flow)
+                print('test'+str(i),':',sum_flow)
+        y=[6.4,3.1,1.1,2.3,3,3.5,5,2.1,1.9]
+        z1=np.polyfit(x,y,1)#得到点列表
+        p1 = np.poly1d(z1)#得到公式
+        print(p1)
+
+        #产生画布
+        fig=plt.figure(1)
+        ax1=fig.add_subplot(111)
+        #设置标题
+        ax1.set_title('scatter plot')
+        #设置x轴标签
+        plt.xlabel('x')
+        plt.ylabel('y')
+        ax1.scatter(x,y,c='r',marker='o',label='o_data')
+        #ax1.scatter(x,z,c='b',marker='o')
+        #画出拟合曲线
+        yvals=p1(x)
+        plot2=plt.plot(x, yvals, 'r',label='polyfit values')
+        plt.legend()
+        #右上角线条说明
+        plt.show()
+        #print(filenumber_start)
+    def my_corr_file(self,data,start_times,end_times):
+        sum_pipe=0
+        last_time=200
+        for i in range(start_times,end_times+1):
+                u_data_origin=data.ix[i,:data_number+1].ix['u']
+                d_data_origin=data.ix[i,:data_number+1].ix['d']
+                                  
+                u_data_calman=calman_python(np.array(u_data_origin))
+                d_data_calman=calman_python(np.array(d_data_origin))
+                u_data_corr=u_data_calman-np.mean(u_data_calman)
+                d_data_corr=d_data_calman-np.mean(d_data_calman)
+                
+                c=np.correlate(u_data_corr,d_data_corr,'same')#算出的值为总长除以二加上延迟
+                max_index = np.argmax(c)
+                time=np.fabs(max_index-data_number//2)
+                dense=np.mean(u_data_calman)
+                #print(i,' time:',time,' dense:',dense,'\n')
+                if(time < 100 and time>3):
+                    sum_pipe=sum_pipe+dense/(time)
+                    last_time=time
+                if(time==0 and last_time <100 and last_time >3):
+                    sum_pipe=sum_pipe+dense//(time)
+                    continue
+                last_time=200
+        return sum_pipe
     def my_corr(self):
         #pure corr and add
         sum_pipe=0
