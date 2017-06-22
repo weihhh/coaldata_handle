@@ -14,20 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 data_number=1024
-def pre_proceed(data):
-    pjz=np.mean(data)
-    bzc=np.std(data)
-    #med_data=np.median(data)
-    #print(med_data)
-    # print(len(data))
-    # for i,number in enumerate(data):
-        # print(number)
-        # if np.isnan(number):
-            # print(i)
-    data1=np.where(data<pjz+2*bzc,data,pjz)
-    data2=np.where(data1>pjz-2*bzc,data1,pjz)#两倍方差效果很好，三倍会有数据出错,一倍两倍差别不大    
-    return data2
-
 def calman_python(Z):#array
     N=1024
     xkf=np.zeros(N)
@@ -37,7 +23,7 @@ def calman_python(Z):#array
     P[0]=0.01
     xkf[0]=Z[0]
     Q=10
-    R=60
+    R=50
     for k in range(1,N):
         x_pre=xkf[k-1]
         p_pre=P[k-1]+Q
@@ -173,7 +159,7 @@ class Application(Frame):
     def get_row(self,times,updown):
         row=self.pro_data.ix[times,:data_number+1].ix[updown]#return series,非副本，只是视图,从times从1开始，因为pro_data中行0为列名
         #self.datalen=len(row)
-        print(row)
+        #print(row)
         return row   
 
     def adsum(self):
@@ -191,9 +177,9 @@ class Application(Frame):
         print('空管值：',self.empty_ad,'ad总和',ad_sum)
 
     def addflow(self):#统计各个文件流量，写入数据，画出曲线，拟合
-        curdir=os.path.dirname(self.filename)
-        filenumber_start=int(self.folw_start_input.get() or '1')
-        filenumber_end=int(self.folw_end_input.get() or '2')
+        curdir=os.path.dirname(self.filename or 'C:/Users/weihao/Desktop/6.16/test1.csv')
+        filenumber_start=int(self.folw_start_input.get() or '12')
+        filenumber_end=int(self.folw_end_input.get() or '23')
         x=[]
         for i in range(filenumber_start,filenumber_end+1):
             # self.filename=os.path.normpath(os.path.join(curdir,'test'+str(i)+'.csv'))#os.path.normcase(path)转换path的大小写和斜杠os.path.normpath(path)规范path字符串形式
@@ -206,11 +192,20 @@ class Application(Frame):
                 sum_flow=self.my_corr_file(flow_pro_data,1,flow_pro_data.shape[0]//2)
                 x.append(sum_flow)
                 print('test'+str(i),':',sum_flow)
+        #y=[6.4,3.1,1.1,2.3,2.2,3,3.2,3.5,5,2.1,1.9]
         y=[6.4,3.1,1.1,2.3,3,3.5,5,2.1,1.9]
-        z1=np.polyfit(x,y,1)#得到点列表
+        z1=np.polyfit(x,y,1)#得到点列表，最后的数字代表多项式次数
         p1 = np.poly1d(z1)#得到公式
         print(p1)
-
+        #计算拟合相关度
+        huigui=0
+        allpinggang=0
+        cancha=0
+        for i,number in enumerate(y):
+            allpinggang=allpinggang+number**2
+            cancha=cancha+(number-p1(x[i]))**2#p1公式直接代入x，p1()
+        rpingfang=(allpinggang-cancha)/allpinggang
+        print(rpingfang)
         #产生画布
         fig=plt.figure(1)
         ax1=fig.add_subplot(111)
@@ -246,10 +241,10 @@ class Application(Frame):
                 dense=np.mean(u_data_calman)
                 #print(i,' time:',time,' dense:',dense,'\n')
                 if(time < 100 and time>3):
-                    sum_pipe=sum_pipe+dense/(time)
+                    sum_pipe=sum_pipe+(dense)/(time)
                     last_time=time
                 if(time==0 and last_time <100 and last_time >3):
-                    sum_pipe=sum_pipe+dense//(time)
+                    sum_pipe=sum_pipe+(dense)//(time)
                     continue
                 last_time=200
         return sum_pipe
