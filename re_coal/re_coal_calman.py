@@ -193,7 +193,7 @@ class Application(Frame):
                 x.append(sum_flow)
                 print('test'+str(i),':',sum_flow)
         #y=[6.4,3.1,1.1,2.3,2.2,3,3.2,3.5,5,2.1,1.9]
-        y=[6.4,3.1,1.1,2.3,3,3.5,5,2.1,1.9]
+        y=[6.4,3.1,1.1,2.3,3,3.5,5,2.2,1.9]
         z1=np.polyfit(x,y,1)#得到点列表，最后的数字代表多项式次数
         p1 = np.poly1d(z1)#得到公式
         print(p1)
@@ -204,6 +204,7 @@ class Application(Frame):
         for i,number in enumerate(y):
             allpinggang=allpinggang+number**2
             cancha=cancha+(number-p1(x[i]))**2#p1公式直接代入x，p1()
+            print('真值：',number,' 拟合值：',p1(x[i]),' 差值：',number-p1(x[i]),' 比例：',(number-p1(x[i]))/number)
         rpingfang=(allpinggang-cancha)/allpinggang
         print(rpingfang)
         #产生画布
