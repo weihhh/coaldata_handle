@@ -233,8 +233,13 @@ class Application(Frame):
                                   
                 u_data_calman=calman_python(np.array(u_data_origin))
                 d_data_calman=calman_python(np.array(d_data_origin))
+                #下面用的是减去平均值的普通处理
                 u_data_corr=u_data_calman-np.mean(u_data_calman)
                 d_data_corr=d_data_calman-np.mean(d_data_calman)
+                #下面用归一化数据处理
+                # u_data_corr=(u_data_calman-np.min(u_data_calman))/(np.max(u_data_calman)-np.min(u_data_calman))
+                # d_data_corr=(d_data_calman-np.min(d_data_calman))/(np.max(d_data_calman)-np.min(d_data_calman))
+                # print(u_data_corr)
                 
                 c=np.correlate(u_data_corr,d_data_corr,'same')#算出的值为总长除以二加上延迟
                 max_index = np.argmax(c)
@@ -249,6 +254,7 @@ class Application(Frame):
                     continue
                 last_time=200
         return sum_pipe
+    
     def my_corr(self):
         #pure corr and add
         sum_pipe=0
