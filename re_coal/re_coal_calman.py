@@ -117,9 +117,19 @@ class Application(Frame):
             data=f.read()
         with open(file,'wt') as f:
             pre_data=re.sub(r'[^,a-z0-9\n]','',data)#.replace方法不修改原字符串
+            pre_data_list=pre_data.split('\n')
+            length=len(pre_data_list)
+            #如果数据奇数行则说明最后一组只收了上路，直接删除最后一组数据，偶数则判断最后一行是否个数符合要求
+            #要额外考虑第一行的start
+            if (length-1)%2:
+                pre_data='\n'.join(pre_data_list[:length-1])
+            else:
+                if len(pre_data_list[length-1].split(','))!=1026:
+                    pre_data='\n'.join(pre_data_list[:length-2])
             f.write(pre_data)
+        print(pre_data)
             
-    def make_pic(self):
+    def make_pic(self):#对应绘图按钮
         #从这开始做根据设置的范围取出数据
         start_times=int(self.start_rowInput.get() or '1')
         end_times=int(self.end_rowInput.get()) if self.end_rowInput.get() else start_times
@@ -156,7 +166,7 @@ class Application(Frame):
         '''
         #plt.plot(plot_data_series,'ko')
         plt.show()
-    def get_row(self,times,updown):
+    def get_row(self,times,updown):#获取某一行数据的接口函数
         row=self.pro_data.ix[times,:data_number+1].ix[updown]#return series,非副本，只是视图,从times从1开始，因为pro_data中行0为列名
         #self.datalen=len(row)
         #print(row)
@@ -176,7 +186,7 @@ class Application(Frame):
             #ad_sum+=self.data_for_ad.ix[i,:1025].ix['d'].sum()
         print('空管值：',self.empty_ad,'ad总和',ad_sum)
 
-    def addflow(self):#统计各个文件流量，写入数据，画出曲线，拟合
+    def addflow(self):#统计各个文件流量，写入数据，画出曲线，拟合，对应统计流量按钮
         curdir=os.path.dirname(self.filename or 'C:/Users/weihao/Desktop/6.16/test1.csv')
         filenumber_start=int(self.folw_start_input.get() or '12')
         filenumber_end=int(self.folw_end_input.get() or '23')
@@ -185,7 +195,9 @@ class Application(Frame):
             # self.filename=os.path.normpath(os.path.join(curdir,'test'+str(i)+'.csv'))#os.path.normcase(path)转换path的大小写和斜杠os.path.normpath(path)规范path字符串形式
             # self.filename_lable.set(self.filename)
             if i not in [16,18,21]:#去除坏点
-                flow_filename=os.path.normpath(os.path.join(curdir,'test'+str(i)+'.csv'))
+                flow_filename=os.path.normpath(os.path.join(curdir,'test'+str(i)+'.csv'))#规范path字符串形式
+                if not os.path.exits(flow_filename):
+                    continue
                 flow_ori_data=pd.read_csv(flow_filename,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
                 flow_pro_data=flow_ori_data.fillna(method='ffill',axis=1).ix[:,0:data_number+1]
 
@@ -193,7 +205,8 @@ class Application(Frame):
                 x.append(sum_flow)
                 print('test'+str(i),':',sum_flow)
         #y=[6.4,3.1,1.1,2.3,2.2,3,3.2,3.5,5,2.1,1.9]
-        y=[6.4,3.1,1.1,2.3,3,3.5,5,2.2,1.9]
+        #y=[6.4,3.1,1.1,2.3,3,3.5,5,2.2,1.9]
+        y=[0.1,5.3,3.4,9.4,2.8,2,7.1,4.6,4.8,4.8]
         z1=np.polyfit(x,y,1)#得到点列表，最后的数字代表多项式次数
         p1 = np.poly1d(z1)#得到公式
         print(p1)
