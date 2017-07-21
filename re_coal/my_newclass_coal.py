@@ -20,8 +20,9 @@ import re
 
 DATA_SIZE=1024
 
+
 def calman_python(Z):#array
-    N=1024
+    N=len(Z)
     xkf=np.zeros(N)
     #Z=np.array([1338,1341,1338,1342,1338,1340,1343,1337,1341,1337,1342,1336,1345,1340,1338,1340,1343,1335,1340,1340,1340,1341,1340,1342,1338,1340,1340,1344,1336,1346,1337,1344,1341,1347,1338,1348,1336,1343,1336,2092,1579,1336,1345,1338,1342,1340,1340,1342,1337,1303,1338,1339,1343,1339,1340,1341,1339,1348,1337,1331,1317,1314,1335,1342,1341,1339,1342,1343,1342,1337,1281,1339,1349,1342,1345,1340,1345,1342,1342,1346,1340,1341,1344,1341,1345,1342,1342,1341,1345,1343,1346,1339,1345,1345,1345,1341,1346,1342,1341,1348,1331,1344,1340,1346,1342,1341,1346,1344,1340,1348,1333,1348,1342,1343,1343,1341,1347,1342,1346,1346,1341,1342,1340,1344,1341,1342,1342,1342,1343,1341,1343,1342,1335,1344,1342,1341,1338,1340,1342,1342,1341,1340,1339,1339,1341,1341,1344,1340,1342,1336,1348,1341,1339,1342,1339,1344,1342,1342,1339,1342,1337,1343,1340,1338,1341,1343,1335,1341,1340,1336,1335,1336,1341,1340,1338,1340,1336,1341,1341,1334,1344,1337,1339,1341,1340,1341,1344,1343,1338,1347,1338,1339,1343,1336,1340,1335,1344,1338,1339,1338,1343,1336,1344,1336,1339,1339,1332,1342,1340,1340,1339,1343,1338,1340,1339,1342,1333,1341,1338,1343,1338,1346,1338,1339,1341,1338,1349,1339,1341,1339,1339,1340,1337,1341,1341,1343,1341,1344,1338,1344,1343,1340,1338,1341,1340,1343,1338,1338,1341,1341,1335,1347,1341,1338,1340,1336,1336,1338,1339,1332,1344,1337,1342,1336,1339,1339,1336,1335,1344,1340,1337,1343,1341,1338,1341,1335,1349,1341,1342,1342,1341,1339,1340,1345,1338,1341,1348,1339,1343,1341,1343,1342,1338,1346,1338,1345,1335,1342,1340,1346,1338,1340,1340,1346,1338,1346,1332,1340,1345,1342,1346,1346,1341,1343,1342,1343,1344,1341,1347,1337,1346,1339,1342,1344,1341,1347,1352,1340,1341,1340,1344,1339,1345,1343,1342,1347,1345,1339,1344,1343,1349,1341,1348,1344,1341,1346,1339,1346,1340,1346,1343,1346,1343,1343,1342,1345,1335,1345,1338,1341,1343,1338,1349,1340,1344,1343,1344,1342,1341,1344,1342,1339,1345,1339,1345,1344,1347,1345,1336,1348,1335,1346,1342,1342,1342,1342,1342,1343,1340,1340,1344,1342,1342,1339,1343,1338,1334,1336,1338,1344,1336,1344,1338,1342,1342,1338,1334,1341,1337,1342,1338,1341,1337,1339,1337,1340,1345,1338,1338,1337,1338,1337,1340,1337,1338,1335,1355,1337,1340,1337,1341,1337,1338,1342,1340,1339,1335,1343,1336,1338,1335,1340,1339,1341,1338,1338,1329,1334,1347,1335,1347,1336,1340,1343,1339,1337,1342,1340,1338,1342,1338,1343,1332,1347,1336,1339,1353,1344,1335,1342,1339,1343,1338,1342,1339,1343,1342,1334,1344,1336,1343,1337,1337,1341,1340,1340,1317,1341,1337,1340,1340,1340,1337,1340,1342,1340,1336,1340,1342,1336,1345,1336,1343,1340,1340,1341,1358,1341,1340,1338,1345,1341,1341,1341,1340,1341,1345,1345,1338,1338,1339,1340,1342,1340,1343,1340,1327,1343,1343,1338,1348,1338,1344,1339,1344,1337,1330,1343,1339,1340,1344,1344,1340,1341,1344,1341,1348,1345,1339,1345,1341,1343,1342,1341,1345,1340,1359,1342,1345,1340,1345,1341,1341,1343,1346,1342,1343,1344,1342,1341,1341,1348,1340,1341,1343,1339,1331,1346,1341,1340,1342,1346,1341,1340,1343,1340,1335,1339,1343,1339,1345,1340,1342,1344,1344,1342,1355,1341,1343,1341,1340,1345,1340,1342,1341,1340,1347,1339,1345,1339,1343,1338,1340,1341,1340,1341,1330,1338,1345,1338,1338,1341,1338,1340,1339,1342,1324,1340,1338,1340,1338,1342,1336,1338,1339,1342,1343,1337,1339,1336,1341,1337,1341,1336,1340,1340,1343,1338,1340,1339,1342,1337,1339,1339,1340,1342,1336,1340,1338,1337,1337,1340,1340,1338,1339,1339,1335,1340,1342,1338,1337,1337,1344,1337,1340,1338,1335,1342,1337,1342,1337,1338,1338,1339,1341,1340,1340,1341,1340,1340,1339,1340,1342,1337,1342,1340,1340,1339,1342,1341,1339,1338,1340,1339,1340,1340,1339,1340,1338,1341,1338,1338,1341,1339,1341,1338,1341,1338,1338,1342,1339,1339,1340,1339,1341,1338,1341,1340,1338,1341,1339,1343,1337,1341,1340,1337,1343,1338,1341,1340,1340,1342,1337,1341,1340,1340,1339,1340,1341,1340,1340,1343,1338,1342,1340,1340,1340,1341,1343,1339,1339,1342,1340,1341,1341,1340,1343,1339,1343,1340,1341,1342,1341,1343,1340,1343,1341,1340,1344,1340,1343,1342,1342,1344,1341,1345,1342,1342,1342,1343,1343,1339,1341,1343,1341,1344,1343,1342,1342,1343,1345,1341,1342,1343,1341,1344,1341,1344,1341,1342,1344,1342,1342,1344,1342,1343,1343,1345,1342,1341,1344,1343,1343,1343,1343,1344,1341,1344,1342,1341,1345,1341,1345,1339,1344,1342,1340,1344,1341,1342,1341,1341,1344,1339,1342,1342,1341,1343,1341,1343,1340,1340,1342,1339,1342,1340,1341,1340,1340,1342,1340,1339,1341,1338,1341,1338,1341,1338,1338,1340,1339,1339,1340,1337,1341,1338,1341,1338,1337,1339,1339,1340,1338,1339,1340,1337,1340,1339,1338,1339,1338,1341,1336,1341,1337,1337,1341,1338,1337,1338,1338,1341,1336,1340,1339,1338,1339,1340,1339,1339,1337,1339,1337,1341,1339,1338,1340,1338,1341,1336,1338,1339,1339,1339,1339,1338,1340,1336,1342,1337,1339,1340,1339,1338,1339,1340,1339,1337,1343,1338,1341,1337,1340,1339,1339,1340,1340,1338,1341,1340,1341,1338,1340,1341,1337,1343,1338,1340,1339,1340,1342,1338,1339,1341,1337,1341,1339,1341,1339,1338,1342,1338,1342,1340,1340,1340,1341,1341,1339,1339,1341,1340,1341,1341,1340,1341,1338,1344,1339,1340,1341,1339,1342,1339,1343,1340,1339,1343,1340,1340,1341,1341,1342,1340,1343,1343,1339,1343,1341,1343,1342,1342,1343,1339,1345,1341,1341,1342,1342,1345,1338,1344,1342,1341])
     var_data=np.var(Z)
@@ -47,7 +48,7 @@ class coal_file(object):
         self.file_name = file_name
         self.weight=weight
         self.data_size=data_size
-        self.data_mean=data_mean
+        self.data_mean_list=data_mean
         self.data_delay_list=data_delay_list
         self.flow_all=flow_all
 
@@ -58,6 +59,7 @@ class Application(Frame):
         Frame.__init__(self,master)
         self.pack()
         self.filename_lable=StringVar()
+        self.calman_flag=IntVar()
         self.up_value=IntVar()
         self.down_value=IntVar()
         self.corr_multi=IntVar()
@@ -75,6 +77,9 @@ class Application(Frame):
         self.confirmButtonx = Button(self, text='预处理', command=self.pre_file)
         self.confirmButtonx.grid(row=0,column=2)#删除数据中的问号,先点击打开文件，选择文件后，若第一次打开这个文件，则点击预处理
         
+        self.calman_choose=Checkbutton(self,text='卡尔曼',variable=self.calman_flag)
+        self.calman_choose.grid(row=0,column=3)
+
         self.noteLabelAD = Label(self, text='2.输入累计文件范围')
         self.noteLabelAD.grid(row=1,sticky=W)
         self.folw_start_input = Entry(self)#输入开始范围
@@ -119,6 +124,25 @@ class Application(Frame):
         self.noteLabel7 = Label(self, text='fuck coal!')
         self.noteLabel7.grid(row=8,sticky=W)#提示标签
 
+    
+    def init_file_class(self):
+        file_names=tkinter.filedialog.askopenfilenames(defaultextension=".csv",filetypes = [("csv文件",".csv")])
+        self.filename_lable.set(str(self.calman_flag.get()))
+        for file_name in file_names:
+            ori_data=pd.read_csv(file_name,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
+            self.pro_data=ori_data.fillna(method='ffill',axis=1).ix[:,0:DATA_SIZE+1]
+            self.filename_lable.set(file_name+'--calmanflag--'+str(self.calman_flag.get()))
+            if(re.match(r'.*_(.*)_.*',file_name)):
+                weight=float(re.match(r'.*_(.*)_.*',file_name).group(1))#文件格式test3_7_kg.csv
+            else:
+                weight="wrong_sytax!"
+            data_size=self.pro_data.shape[0]//2
+            flow_all,data_mean_list,data_delay_list=self.my_corr_file(self.pro_data,1,data_size)
+            now_class=coal_file(file_name,weight,data_size,data_mean_list,data_delay_list,flow_all)
+            coal_file_dict[file_name]=now_class
+        self.print_class_list()
+
+
     def pre_file(self):
         file=tkinter.filedialog.askopenfilename(defaultextension=".csv",filetypes = [("csv文件",".csv")])
         with open(file,'rt',errors='ignore') as f:
@@ -145,12 +169,20 @@ class Application(Frame):
             start_series_up=pd.Series()
             plot_data_series_up=start_series_up.append([self.get_row(i,'u') for i in range(start_times,end_times+1)],ignore_index=True)
             plot_data_series_up.plot()
-            print('up:',np.mean(calman_python(np.array(plot_data_series_up))))
+            if self.calman_flag.get()==1 :
+                for_mean_up=pd.Series(calman_python(np.array(plot_data_series_up)))
+                for_mean_up.plot()
+                print('up--calman--mean:',np.mean(for_mean_up))
+            print('up--mean:',np.mean(plot_data_series_up))
         if self.down_value.get()==1 :
             start_series_down=pd.Series()
             plot_data_series_down=start_series_down.append([self.get_row(i,'d') for i in range(start_times,end_times+1)],ignore_index=True)
             plot_data_series_down.plot()
-            print('down:',np.mean(calman_python(np.array(plot_data_series_down))))
+            if self.calman_flag.get()==1:
+                for_mean_down=pd.Series(calman_python(np.array(plot_data_series_down)))
+                for_mean_down.plot()
+                print('down--calman--mean:',np.mean(for_mean_down))
+            print('down:',np.mean(plot_data_series_down))
         
         plt.show()
 
@@ -160,27 +192,14 @@ class Application(Frame):
         #print(row)
         return row   
 
-    def init_file_class(self):
-        file_names=tkinter.filedialog.askopenfilenames(defaultextension=".csv",filetypes = [("csv文件",".csv")])
-        for file_name in file_names:
-            ori_data=pd.read_csv(file_name,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
-            self.pro_data=ori_data.fillna(method='ffill',axis=1).ix[:,0:DATA_SIZE+1]
-            if(re.match(r'.*_(.*)_.*',file_name)):
-                weight=float(re.match(r'.*_(.*)_.*',file_name).group(1))#文件格式test3_7_kg.csv
-            else:
-                weight="wrong_sytax!"
-            data_size=self.pro_data.shape[0]//2
-            flow_all,data_mean_list,data_delay_list=self.my_corr_file(self.pro_data,1,data_size)
-            now_class=coal_file(file_name,weight,data_size,data_mean_list,data_delay_list,flow_all)
-            coal_file_dict[file_name]=now_class
-        self.print_class_list()
-
     def print_class_list(self):
         for dataclass in coal_file_dict:
             print(coal_file_dict[dataclass].file_name,end=' , ')
             print(coal_file_dict[dataclass].weight,end=' kg , ')
             print(coal_file_dict[dataclass].data_size,end=' , ')
             print(coal_file_dict[dataclass].flow_all,end=' , ')
+            # print(coal_file_dict[dataclass].data_delay_list,end=' , ')
+            # print(coal_file_dict[dataclass].data_mean_list,end=' , ')
             print('\n')
         print('数据文件总数：',len(coal_file_dict))
 
@@ -238,7 +257,7 @@ class Application(Frame):
                     c=np.correlate(u_data_corr,d_data_corr,'same')#算出的值为总长除以二加上延迟
                     max_index = np.argmax(c)
                     time=np.fabs(max_index-DATA_SIZE//2)
-                    dense=np.mean(u_data_calman)
+                    dense=np.mean(u_data_calman)#这里用了卡尔曼滤波后的平均值
                     print(i,' time:',time,' dense:',dense,'\n')
                     if(time < 100 and time>3):
                         sum_pipe=sum_pipe+dense/(time*10)
@@ -274,20 +293,28 @@ class Application(Frame):
             u_data_origin=data.ix[i,:DATA_SIZE+1].ix['u']
             d_data_origin=data.ix[i,:DATA_SIZE+1].ix['d']
                               
-            u_data_calman=calman_python(np.array(u_data_origin))
-            d_data_calman=calman_python(np.array(d_data_origin))
-            #下面用的是减去平均值的普通处理
-            u_data_corr=u_data_calman-np.mean(u_data_calman)
-            d_data_corr=d_data_calman-np.mean(d_data_calman)
-            #下面用归一化数据处理
-            # u_data_corr=(u_data_calman-np.min(u_data_calman))/(np.max(u_data_calman)-np.min(u_data_calman))
-            # d_data_corr=(d_data_calman-np.min(d_data_calman))/(np.max(d_data_calman)-np.min(d_data_calman))
-            # print(u_data_corr)
+            if self.calman_flag.get()==1:
+
+                u_data_calman=calman_python(np.array(u_data_origin))
+                d_data_calman=calman_python(np.array(d_data_origin))
+                dense=np.mean(u_data_calman)
+                #下面用的是减去平均值的普通处理
+                u_data_corr=u_data_calman-np.mean(u_data_calman)
+                d_data_corr=d_data_calman-np.mean(d_data_calman)
+                #下面用归一化数据处理
+                # u_data_corr=(u_data_calman-np.min(u_data_calman))/(np.max(u_data_calman)-np.min(u_data_calman))
+                # d_data_corr=(d_data_calman-np.min(d_data_calman))/(np.max(d_data_calman)-np.min(d_data_calman))
+                # print(u_data_corr)
+            else:
+                dense=np.mean(u_data_origin)
+                u_data_corr=u_data_origin-np.mean(u_data_origin)
+                d_data_corr=d_data_origin-np.mean(d_data_origin)
             
-            c=np.correlate(u_data_corr,d_data_corr,'same')#算出的值为总长除以二加上延迟
+            #算出的值为总长除以二加上延迟
+            c=np.correlate(u_data_corr,d_data_corr,'same')
             max_index = np.argmax(c)
             time=np.fabs(max_index-DATA_SIZE//2)
-            dense=np.mean(u_data_calman)
+            
             alist.append(dense)
             blist.append(time)
             #print(i,' time:',time,' dense:',dense,'\n')
