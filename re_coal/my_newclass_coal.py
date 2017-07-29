@@ -130,6 +130,11 @@ class Application(Frame):
         self.filename_lable.set(str(self.calman_flag.get()))
         for file_name in file_names:
             ori_data=pd.read_csv(file_name,error_bad_lines=False,index_col=[0,1],header=None,skiprows=[0])
+            # if re.match(r'.*testa.*',file_name):
+            #     self.pro_data=ori_data.fillna(method='ffill',axis=1).ix[:,0:DATA_SIZE+1]*1.05
+            # else:
+            #     self.pro_data=ori_data.fillna(method='ffill',axis=1).ix[:,0:DATA_SIZE+1]
+            #print(self.pro_data)
             self.pro_data=ori_data.fillna(method='ffill',axis=1).ix[:,0:DATA_SIZE+1]
             self.filename_lable.set(file_name+'--calmanflag--'+str(self.calman_flag.get()))
             if(re.match(r'.*_(.*)_.*',file_name)):
@@ -198,7 +203,7 @@ class Application(Frame):
             print(coal_file_dict[dataclass].weight,end=' kg , ')
             print(coal_file_dict[dataclass].data_size,end=' , ')
             print(coal_file_dict[dataclass].flow_all,end=' , ')
-            # print(coal_file_dict[dataclass].data_delay_list,end=' , ')
+            print(coal_file_dict[dataclass].data_delay_list,end=' , ')
             # print(coal_file_dict[dataclass].data_mean_list,end=' , ')
             print('\n')
         print('数据文件总数：',len(coal_file_dict))
@@ -318,10 +323,17 @@ class Application(Frame):
             alist.append(dense)
             blist.append(time)
             #print(i,' time:',time,' dense:',dense,'\n')
-            if(time < 100 and time>3):
+            
+            #下面是不考虑删除正常值
+            # if time>0:
+            #     sum_pipe=sum_pipe+(dense)/(time)
+
+
+            #下面这一段是考虑删除不正常值的
+            if(time < 25 and time>3):
                 sum_pipe=sum_pipe+(dense)/(time)
                 last_time=time
-            if(time==0 and last_time <100 and last_time >3):
+            if(time==0 and last_time <25 and last_time >3):
                 sum_pipe=sum_pipe+(dense)//(time)
                 continue
             last_time=200
